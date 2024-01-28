@@ -155,7 +155,7 @@
   },
 
   {
-    "template": "Note",
+    "template": "Music note",
     "level": "Hard",
     "matrix": [
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],

@@ -139,19 +139,7 @@ body {
   flex-direction: row;
   width: 100%;
   height: 81%;
-}
-
-.play-area__box__hint__left-line {
-  height: calc(5 * var(--square-height) + 10px);
-  background-color: #800000;
-  width: 5px;
-}
-
-.play-area__box__hint__top-line {
-  margin-left: 30px;
-  width: calc(5 * var(--square-width));
-  background-color: #800000;
-  height: 5px;
+  position: relative;
 }
 
 .play-area__image {
@@ -164,6 +152,63 @@ body {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-gap: 2px;
+  border-left: 5px solid #800000;
+  border-top: 5px solid #800000;
+}
+
+.play-area__box__line-field1-10 {
+  position: relative;
+  left: 55%;
+  height: calc(5 * var(--square-height) + 10px);
+  width: 5px;
+  background-color: #800000;
+}
+
+.play-area__box__line-field2-10 {
+  margin-left: 35.5px;
+  top: 49.5%;
+  position: absolute;
+  width: 354px;
+  height: 5px;
+  background-color: #800000;
+}
+
+.play-area__box__line-field1-15,
+.play-area__box__line-field2-15,
+.play-area__box__line-field3-15,
+.play-area__box__line-field4-15 {
+  background-color: #800000;
+}
+
+.play-area__box__line-field1-15,
+.play-area__box__line-field2-15 {
+  position: relative;
+  height: calc(5 * var(--square-height) + 10px);
+  width: 4px;
+}
+
+.play-area__box__line-field1-15 {
+  left: 40%;
+}
+
+.play-area__box__line-field2-15 {
+  left: 69%;
+}
+
+.play-area__box__line-field3-15,
+.play-area__box__line-field4-15 {
+  position: absolute;
+  width: 346px;
+  height: 4px;
+  margin-left: 41px;
+}
+
+.play-area__box__line-field3-15 {
+  top: 33%;
+}
+
+.play-area__box__line-field4-15 {
+  top: 66.5%;
 }
 
 .play-area__box__field__square {
@@ -172,6 +217,17 @@ body {
   background-color: white;
   box-sizing: border-box;
   cursor: pointer;
+  color:#800000;
+  font-size: x-large;
+  margin: 0;
+  /* transition: 0.3s; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dark {
+  background-color: #0f7a1d;
 }
 
 .bottom-dashboard {
@@ -258,8 +314,14 @@ body {
   align-items: center;
 }
 
+.bottom-dashboard__image {
+  cursor: pointer;
+  margin-left: 20px;
+  margin-right: 20px;
+  width: 5vw;
+}
+
 .bottom-dashboard-menu__button {
-  margin-left: 40px;
   background-color: #f2d3d9;
   color: #800000;
   font-family: "Indie Flower", cursive;

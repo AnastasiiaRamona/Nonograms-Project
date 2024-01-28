@@ -1,5 +1,7 @@
 import info from "./info.json" assert { type: "json" };
 
+// main functions
+
 function createHeader() {
   const header = document.createElement("header");
   header.className = "top-dashboard";
@@ -65,8 +67,11 @@ function createGameWindow(matrix) {
     infoTemplate = infoObject["template"];
     infoLevel = infoObject["level"];
     infoNumber = infoObject["number"];
-    infoMatrix = infoObject["matrix"];
+    infoMatrix = matrix;
   }
+
+  console.log(infoTemplate);
+
   createHeader();
 
   const main = document.createElement("main");
@@ -109,9 +114,6 @@ function createGameWindow(matrix) {
     hintVertical1.appendChild(hintNumber);
   }
 
-  const hintTopLine = document.createElement("div");
-  hintTopLine.className = "play-area__box__hint__top-line";
-
   const hintAndField = document.createElement("div");
   hintAndField.className = "play-area__box__hint-and-field";
 
@@ -125,24 +127,34 @@ function createGameWindow(matrix) {
     hintHorizontal1.appendChild(hintNumber);
   }
 
-  const hintLeftLine = document.createElement("div");
-  hintLeftLine.className = "play-area__box__hint__left-line";
-
   const field = document.createElement("div");
   field.className = "play-area__box__field";
 
-  for (let i = 0; i < infoNumber; i++) {
-    const fieldSquare = document.createElement("div");
-    fieldSquare.className = "play-area__box__field__square";
-    field.appendChild(fieldSquare);
+  const repetitions = infoNumber / 25;
+
+  for (let i = 0; i < repetitions; i++) {
+    getSquare(field);
+  }
+
+  if (infoNumber === 100) {
+    const lineField1 = document.createElement("div");
+    lineField1.className = "play-area__box__line-field1-10";
+    const lineField2 = document.createElement("div");
+    lineField2.className = "play-area__box__line-field2-10";
+    hintAndField.appendChild(lineField1);
+    hintAndField.appendChild(lineField2);
+  } else if (infoNumber === 225) {
+    for (let i = 1; i <= 4; i++) {
+      const lineField = document.createElement("div");
+      lineField.className = `play-area__box__line-field${i}-15`;
+      hintAndField.appendChild(lineField);
+    }
   }
 
   hintAndField.appendChild(hintHorizontal1);
-  hintAndField.appendChild(hintLeftLine);
   hintAndField.appendChild(field);
 
   playAreaBox.appendChild(hintVertical1);
-  playAreaBox.appendChild(hintTopLine);
   playAreaBox.appendChild(hintAndField);
 
   const playAreaImage = document.createElement("img");
@@ -190,11 +202,13 @@ function createGameWindow(matrix) {
     createMenuWindow();
   });
 
+  // Styles
   if (infoNumber === 225) {
     const squares = document.querySelectorAll(".play-area__box__field__square");
     squares.forEach((square) => {
       square.style.width = "21px";
       square.style.height = "21px";
+      square.style.fontSize = "18px";
     });
 
     const grid = document.querySelector(".play-area__box__field");
@@ -208,7 +222,47 @@ function createGameWindow(matrix) {
 
     const grid = document.querySelector(".play-area__box__field");
     grid.style.gridTemplateColumns = "repeat(10, 1fr)";
+  } else if (infoNumber === 25) {
+    const squares = document.querySelectorAll(".play-area__box__field__square");
+    squares.forEach((square) => {
+      square.style.fontSize = "50px";
+    });
   }
+
+  // Event Listeners
+  const squareButtons = document.querySelectorAll(
+    ".play-area__box__field__square",
+  );
+  checkThePicture(infoMatrix, squareButtons);
+
+  squareButtons.forEach((square) => {
+    square.addEventListener("click", () => {
+      checkThePicture(infoMatrix, squareButtons);
+      if (square.textContent === "X") {
+        return;
+      }
+
+      if (square.classList.contains("dark")) {
+        square.classList.remove("dark");
+      } else {
+        square.classList.add("dark");
+      }
+      checkThePicture(infoMatrix, squareButtons);
+    });
+
+    square.addEventListener("contextmenu", (event) => {
+      event.preventDefault();
+      if (square.classList.contains("dark")) {
+        return;
+      }
+
+      if (square.textContent === "X") {
+        square.textContent = "";
+      } else {
+        square.textContent = "X";
+      }
+    });
+  });
 }
 
 function createMenuWindow() {
@@ -330,6 +384,12 @@ function createMenuNewGameWindow() {
   const footer = document.createElement("footer");
   footer.classList.add("bottom-dashboard-menu");
 
+  const arrow = document.createElement("img");
+  arrow.classList.add("bottom-dashboard__image");
+  arrow.src = "./assets/arrow.png";
+  img.alt = "Arrow back";
+  footer.appendChild(arrow);
+
   const backButton = document.createElement("button");
   backButton.classList.add("bottom-dashboard-menu__button");
   backButton.textContent = "Back";
@@ -341,6 +401,13 @@ function createMenuNewGameWindow() {
   const back = document.querySelector(".bottom-dashboard-menu__button");
 
   back.addEventListener("click", () => {
+    document.body.innerHTML = "";
+    createMenuWindow();
+  });
+
+  const arrowButton = document.querySelector(".bottom-dashboard__image");
+
+  arrowButton.addEventListener("click", () => {
     document.body.innerHTML = "";
     createMenuWindow();
   });
@@ -363,7 +430,6 @@ function createMenuNewGameWindow() {
   const select2 = document.getElementById("select-level");
 
   startGame.addEventListener("click", () => {
-    document.body.innerHTML = "";
     const selectedOption1 = select1.options[select1.selectedIndex].textContent;
     const selectedOption2 = select2.options[select2.selectedIndex].textContent;
     const selectedObject = info.find(
@@ -371,9 +437,21 @@ function createMenuNewGameWindow() {
         object.template === selectedOption1 && object.level === selectedOption2,
     );
     const selectedMatrix = selectedObject.matrix;
+    document.body.innerHTML = "";
+    createGameWindow(selectedMatrix);
+  });
+
+  const randomGame = document.querySelector(".menu__navigation__random-game");
+
+  randomGame.addEventListener("click", () => {
+    const selectedObject = info[Math.floor(Math.random() * info.length)];
+    const selectedMatrix = selectedObject.matrix;
+    document.body.innerHTML = "";
     createGameWindow(selectedMatrix);
   });
 }
+
+// secondary functions
 
 function checkOptionLevel(name, lev, event, dropdown) {
   if (event.target.value === name) {
@@ -388,5 +466,33 @@ function checkOptionLevel(name, lev, event, dropdown) {
     });
   }
 }
+
+function checkThePicture(matrix, squareButtons) {
+  const arr = matrix.flat();
+  const newSquareButtons = Array.from(squareButtons).map((button) => {
+    if (button.classList.contains("dark")) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
+  const newSquareButtonsAsNumbers = newSquareButtons.map(Number);
+  if (
+    arr.length === newSquareButtonsAsNumbers.length &&
+    arr.every((value, index) => value === newSquareButtonsAsNumbers[index])
+  ) {
+    return alert("ты выиграл!");
+  }
+}
+
+function getSquare(field) {
+  for (let i = 0; i < 25; i++) {
+    const fieldSquare = document.createElement("div");
+    fieldSquare.className = "play-area__box__field__square";
+    field.appendChild(fieldSquare);
+  }
+}
+
+// implementation
 
 createGameWindow();
