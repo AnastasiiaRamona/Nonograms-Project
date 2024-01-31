@@ -98,6 +98,31 @@ body {
   color: #ffc0cb;
   font-weight: 700;
   cursor: pointer;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.play-area__save__image {
+  width: 20%;
+}
+
+.play-area__display {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  height: 11vh;
+  border-radius: 20px;
+  font-size: large;
+  font-family: "Indie Flower", cursive;
+  font-style: normal;
+  background-color: #f2d3d9;
+  font-weight: 700;
+}
+
+.play-area__display span {
+  color:darkgreen;
+  font-size: larger;
 }
 
 .play-area__time__word,
@@ -108,22 +133,28 @@ body {
   font-weight: 700;
 }
 
+.play-area__time__stopwatch {
+  width: 90px;
+}
+
 .play-area__box {
   margin-top: 40px;
   width: auto;
-  height: 80%;
+  height: auto;
   background-color: #f2d3d9;
   border-radius: 20px;
   padding: 50px;
   padding-bottom: 10px;
-  padding-top: 10px;
 }
 
-.play-area__box__hint-vertical-1 {
+.play-area__box__hint-vertical {
   display: flex;
   justify-content: space-around;
+  align-items: flex-end;
   font-size: xx-large;
-  margin-left: 25px;
+  margin-left: 77px;
+  height: auto;
+  border-bottom: 5px solid #800000;
 }
 
 .play-area__box__hint-horizontal-1 {
@@ -131,15 +162,32 @@ body {
   flex-direction: column;
   justify-content: space-around;
   font-size: xx-large;
-  margin-right: 20px;
+  border-right: 5px solid #800000;
 }
 
 .play-area__box__hint-and-field {
   display: flex;
   flex-direction: row;
   width: 100%;
-  height: 81%;
+  height: auto;
   position: relative;
+}
+
+.play-area__box__hint__numberH,
+.play-area__box__hint__numberV {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+}
+
+.play-area__box__hint__numberH {
+  border-top: 1px solid #800000;
+}
+
+.play-area__box__hint__numberV {
+  border-right: 1px solid #800000;
 }
 
 .play-area__image {
@@ -149,26 +197,24 @@ body {
 }
 
 .play-area__box__field {
+  grid-row-gap: 2px;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-gap: 2px;
-  border-left: 5px solid #800000;
-  border-top: 5px solid #800000;
 }
 
 .play-area__box__line-field1-10 {
+  left: 56.5%;
+  z-index: 100;
   position: relative;
-  left: 55%;
-  height: calc(5 * var(--square-height) + 10px);
   width: 5px;
   background-color: #800000;
 }
 
 .play-area__box__line-field2-10 {
-  margin-left: 35.5px;
   top: 49.5%;
   position: absolute;
-  width: 354px;
+  width: 100%;
   height: 5px;
   background-color: #800000;
 }
@@ -188,19 +234,18 @@ body {
 }
 
 .play-area__box__line-field1-15 {
-  left: 40%;
+  left: 45.8%;
 }
 
 .play-area__box__line-field2-15 {
-  left: 69%;
+  left: 71.9%;
 }
 
 .play-area__box__line-field3-15,
 .play-area__box__line-field4-15 {
   position: absolute;
-  width: 346px;
+  width: 100%;
   height: 4px;
-  margin-left: 41px;
 }
 
 .play-area__box__line-field3-15 {
@@ -212,12 +257,12 @@ body {
 }
 
 .play-area__box__field__square {
-  width: 5vw;
-  height: 8.8vh;
+  width: 72px;
+  height: 72px;
   background-color: white;
   box-sizing: border-box;
   cursor: pointer;
-  color:#800000;
+  color: #800000;
   font-size: x-large;
   margin: 0;
   /* transition: 0.3s; */
@@ -332,4 +377,74 @@ body {
   cursor: pointer;
   border: none;
   padding: 10px;
+}
+
+/* MODAL WINDOW STYLES */
+
+.modal-window-container {
+  padding: 0;
+  display: flex;
+  align-content: center;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(139, 137, 133, 0.8);
+  z-index: 9998;
+}
+
+.modal-window {
+  width: max-content;
+  margin: 16px;
+  padding: 20px;
+  background: rgb(251, 174, 220);
+  background: radial-gradient(circle, rgba(251, 174, 220, 1) 0%, rgba(232, 124, 172, 1) 100%);
+  border-radius: 30px;
+  z-index: 100;
+  position: relative;
+  border-radius: 100px;
+}
+
+.modal-window__head {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
+
+.modal-window__image {
+  width: 20vw;
+  min-width: 200px;
+}
+
+.modal-window__congratulation {
+  max-width: 300px;
+  font-size: 40px;
+  margin-left: 30px;
+  text-align: center;
+}
+
+.modal-window__buttons-container {
+  margin-top: 50px;
+  display: flex;
+  justify-content: center;
+}
+
+.modal-window__start-again-button,
+.modal-window__menu-button {
+  margin-left: 20px;
+  cursor: pointer;
+  padding: 20px;
+  border: none;
+  background: rgb(9, 110, 44);
+  background: radial-gradient(circle, rgba(9, 110, 44, 1) 0%, rgba(22, 157, 40, 1) 100%);
+  border-radius: 20px;
+  font-family: "Indie Flower", cursive;
+  font-weight: 700;
+  font-style: normal;
+  font-size: xx-large;
+  color: #ffc0cb;
 }
