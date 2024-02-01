@@ -102,6 +102,13 @@ body {
   justify-content: space-evenly;
 }
 
+.non-working {
+  background: rgb(92, 92, 92);
+  background: radial-gradient(circle, rgba(92, 92, 92, 1) 0%, rgba(146, 156, 148, 1) 100%);
+  color: darkgray;
+  cursor: no-drop;
+}
+
 .play-area__save__image {
   width: 20%;
 }
@@ -121,7 +128,7 @@ body {
 }
 
 .play-area__display span {
-  color:darkgreen;
+  color: darkgreen;
   font-size: larger;
 }
 
@@ -191,7 +198,6 @@ body {
 }
 
 .play-area__image {
-  margin-left: 15px;
   margin-top: 20px;
   height: 100%;
 }
@@ -379,6 +385,50 @@ body {
   padding: 10px;
 }
 
+.main-score-table {
+  height: 70%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+.score-table {
+  width: 60vw;
+  height: auto;
+  font-size: large;
+  font-weight: 800;
+  display: flex;
+  flex-direction: column;
+}
+
+.score-table__title {
+  margin-top: 40px;
+  margin-bottom: 40px;
+  text-align: center;
+  border-radius: 20px;
+  background-color: #f2d3d9;
+}
+
+.score-table tr {
+  font-size: xx-large;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  background: rgb(245, 205, 231);
+  background: radial-gradient(circle, rgba(245, 205, 231, 1) 0%, rgba(242, 130, 190, 1) 100%);
+  border-radius: 20px;
+  margin-bottom: 10px;
+  color: #0b4a0a;
+}
+
+.score-table td {
+  width: 15vw;
+}
+
+.score-table td:nth-child(1) {
+  text-align: center;
+}
+
 /* MODAL WINDOW STYLES */
 
 .modal-window-container {
@@ -447,4 +497,36 @@ body {
   font-style: normal;
   font-size: xx-large;
   color: #ffc0cb;
+}
+
+.saved-modal-window-container {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  z-index: 9998;
+  top: 0;
+  left: 0;
+}
+
+.saved-modal-window {
+  width: 18vw;
+  height: 5vh;
+  background: rgb(251, 174, 220);
+  background: radial-gradient(circle, rgba(251, 174, 220, 1) 0%, rgba(232, 124, 172, 1) 100%);
+  border-radius: 20px;
+  font-size: medium;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  top: 15%;
+  left: 8%;
+}
+
+.saved-modal-window__check-mark {
+  margin-left: 10px;
+  height: 4vh;
 }

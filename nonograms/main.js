@@ -57,7 +57,7 @@ function createHeader() {
   document.body.appendChild(header);
 }
 
-function createGameWindow(matrix) {
+function createGameWindow(matrix, saveMatrix, saveTime) {
   isTimerStarted = false;
 
   let infoObject = info[Math.floor(Math.random() * 5)];
@@ -73,8 +73,6 @@ function createGameWindow(matrix) {
     infoNumber = infoObject["number"];
     infoMatrix = matrix;
   }
-
-  console.log(infoTemplate);
 
   createHeader();
 
@@ -104,7 +102,11 @@ function createGameWindow(matrix) {
 
   const stopwatch = document.createElement("p");
   stopwatch.className = "play-area__time__stopwatch";
-  stopwatch.textContent = "00:00:00";
+  if (saveTime !== undefined) {
+    stopwatch.textContent = `${saveTime}`;
+  } else {
+    stopwatch.textContent = "00:00:00";
+  }
 
   playAreaTime.appendChild(timeWord);
   playAreaTime.appendChild(stopwatch);
@@ -301,9 +303,26 @@ function createGameWindow(matrix) {
   const squareButtons = document.querySelectorAll(
     ".play-area__box__field__square",
   );
-  checkThePicture(infoMatrix, squareButtons);
+
+  if (saveMatrix !== undefined) {
+    squareButtons.forEach((button, index) => {
+      if (saveMatrix[index] === 1) {
+        button.classList.add("dark");
+      } else if (saveMatrix[index] === 2) {
+        button.textContent = "X";
+      }
+    });
+  }
+
+  checkThePicture(infoMatrix, squareButtons, infoTemplate, infoLevel);
   const clickHandler = (event) =>
-    handleSquareClick(event, infoMatrix, squareButtons);
+    handleSquareClick(
+      event,
+      infoMatrix,
+      squareButtons,
+      infoTemplate,
+      infoLevel,
+    );
 
   squareButtons.forEach((square) => {
     square.addEventListener("click", clickHandler);
@@ -327,10 +346,17 @@ function createGameWindow(matrix) {
     }
   });
 
+  const saveGameButton = document.querySelector(".play-area__save");
   const resetGameButton = document.querySelector(
     ".bottom-dashboard__navigation__start-again",
   );
+
+  const saveCurrentGameFunction = () => saveCurrentGame(infoTemplate);
+
   resetGameButton.addEventListener("click", () => {
+    saveGameButton.classList.remove("non-working");
+    saveGameButton.addEventListener("click", saveCurrentGameFunction);
+
     clearInterval(timerId);
 
     const stopwatch = document.querySelector(".play-area__time__stopwatch");
@@ -360,6 +386,9 @@ function createGameWindow(matrix) {
 
     isTimerStarted = true;
 
+    saveGameButton.removeEventListener("click", saveCurrentGameFunction);
+    saveGameButton.classList.add("non-working");
+
     const arr = infoMatrix.flat();
     arr.forEach((elem, index) => {
       const square = squareButtons[index];
@@ -377,6 +406,8 @@ function createGameWindow(matrix) {
       square.removeEventListener("click", clickHandler);
     });
   });
+
+  saveGameButton.addEventListener("click", saveCurrentGameFunction);
 }
 
 function createMenuWindow() {
@@ -393,8 +424,8 @@ function createMenuWindow() {
   newGameUl.textContent = "New Game";
 
   const continueGameUl = document.createElement("ul");
-  continueGameUl.classList.add("menu__navigation__continue-last-game");
-  continueGameUl.textContent = "Continue Last Game";
+  continueGameUl.classList.add("menu__navigation__resume-game");
+  continueGameUl.textContent = "Resume Game";
 
   const scoreTableUl = document.createElement("ul");
   scoreTableUl.classList.add("menu__navigation__score-table");
@@ -418,11 +449,40 @@ function createMenuWindow() {
   footer.classList.add("bottom-dashboard");
   document.body.appendChild(footer);
 
-  const newGameButton = document.querySelector(".menu__navigation__new-game");
+  // Event Listeners
 
+  const newGameButton = document.querySelector(".menu__navigation__new-game");
   newGameButton.addEventListener("click", () => {
     document.body.innerHTML = "";
     createMenuNewGameWindow();
+  });
+
+  const resumeGameButton = document.querySelector(
+    ".menu__navigation__resume-game",
+  );
+  resumeGameButton.addEventListener("click", () => {
+    const saveField = localStorage.getItem("saveField");
+    const saveMatrix = JSON.parse(saveField);
+    const saveTemplate = localStorage.getItem("infoTemplate");
+    const saveTime = localStorage.getItem("time");
+    const infoObject = info.find(
+      (object) => object["template"] === saveTemplate,
+    );
+    const infoMatrix = infoObject["matrix"];
+    document.body.innerHTML = "";
+    createGameWindow(infoMatrix, saveMatrix, saveTime);
+  });
+
+  const scoreTableButton = document.querySelector(
+    ".menu__navigation__score-table",
+  );
+  scoreTableButton.addEventListener("click", () => {
+    document.body.innerHTML = "";
+
+    let winsString = localStorage.getItem("lastWins");
+    let wins = JSON.parse(winsString) || [];
+    console.log(wins);
+    createScoreTable(wins);
   });
 }
 
@@ -501,7 +561,7 @@ function createMenuNewGameWindow() {
   const arrow = document.createElement("img");
   arrow.classList.add("bottom-dashboard__image");
   arrow.src = "./assets/arrow.png";
-  img.alt = "Arrow back";
+  arrow.alt = "Arrow back";
   footer.appendChild(arrow);
 
   const backButton = document.createElement("button");
@@ -647,6 +707,118 @@ function createModalWindow(time) {
   });
 }
 
+function createWindowGameSaved() {
+  const previousModal = document.querySelector(".saved-modal-window-container");
+  if (previousModal) {
+    previousModal.remove();
+  }
+
+  const body = document.body;
+
+  const modalWindowContainer = document.createElement("section");
+  modalWindowContainer.classList.add("saved-modal-window-container");
+
+  const modalWindow = document.createElement("div");
+  modalWindow.classList.add("saved-modal-window");
+
+  const gameSaved = document.createElement("p");
+  gameSaved.classList.add("saved-modal-window__game-saved");
+  gameSaved.textContent = "Game saved successfully";
+
+  const checkMark = document.createElement("img");
+  checkMark.classList.add("saved-modal-window__check-mark");
+  checkMark.src = "./assets/check-mark.png";
+  checkMark.alt = "Check mark";
+
+  modalWindow.appendChild(gameSaved);
+  modalWindow.appendChild(checkMark);
+  modalWindowContainer.appendChild(modalWindow);
+  body.appendChild(modalWindowContainer);
+}
+
+function createScoreTable(arr) {
+  createHeader();
+
+  const main = document.createElement("main");
+  main.classList.add("main-score-table");
+
+  const menuImage = document.createElement("img");
+  menuImage.classList.add("menu__image"); // class for the purpose of uniform css styles
+  menuImage.src = "./assets/totoro.png";
+  menuImage.alt = "Totoro";
+
+  const scoreTable = document.createElement("table");
+  scoreTable.classList.add("score-table");
+
+  const scoreTableTitle = document.createElement("h1");
+  scoreTableTitle.classList.add("score-table__title");
+  scoreTableTitle.innerHTML = `Score Table <br> We Are the Champions!`;
+
+  scoreTable.appendChild(scoreTableTitle);
+
+  const cellNames = ["#️⃣", "Time", "Template", "Level"];
+  const cellsHeading = document.createElement("tr");
+  cellNames.forEach((cellName) => {
+    const cell = document.createElement("td");
+    cell.textContent = cellName;
+    cellsHeading.appendChild(cell);
+  });
+
+  scoreTable.appendChild(cellsHeading);
+
+  const players = arr;
+
+  function timeToSeconds(timeWin) {
+    const [hours, minutes, seconds] = timeWin.split(":").map(Number);
+    return hours * 3600 + minutes * 60 + seconds;
+  }
+
+  players.sort((a, b) => {
+    const timeA = timeToSeconds(a.timeWin);
+    const timeB = timeToSeconds(b.timeWin);
+    return timeA - timeB;
+  });
+
+  for (let i = 1; i <= players.length; i++) {
+    const playerRow = createPlayerRow(i, players[i - 1]);
+    scoreTable.appendChild(playerRow);
+  }
+
+  main.appendChild(scoreTable);
+  main.appendChild(menuImage);
+  document.body.appendChild(main);
+
+  const footer = document.createElement("footer");
+  footer.classList.add("bottom-dashboard-menu");
+
+  const arrow = document.createElement("img");
+  arrow.classList.add("bottom-dashboard__image");
+  arrow.src = "./assets/arrow.png";
+  arrow.alt = "Arrow back";
+  footer.appendChild(arrow);
+
+  const backButton = document.createElement("button");
+  backButton.classList.add("bottom-dashboard-menu__button");
+  backButton.textContent = "Back";
+  footer.appendChild(backButton);
+
+  document.body.appendChild(footer);
+
+  const back = document.querySelector(".bottom-dashboard-menu__button");
+
+  back.addEventListener("click", () => {
+    document.body.innerHTML = "";
+    createMenuWindow();
+  });
+
+  const arrowButton = document.querySelector(".bottom-dashboard__image");
+
+  arrowButton.addEventListener("click", () => {
+    document.body.innerHTML = "";
+    createMenuWindow();
+  });
+}
+
 // secondary functions
 
 function checkOptionLevel(name, lev, event, dropdown) {
@@ -663,7 +835,7 @@ function checkOptionLevel(name, lev, event, dropdown) {
   }
 }
 
-function checkThePicture(matrix, squareButtons) {
+function checkThePicture(matrix, squareButtons, infoTemplate, infoLevel) {
   const arr = matrix.flat();
   const newSquareButtons = Array.from(squareButtons).map((button) => {
     if (button.classList.contains("dark")) {
@@ -680,6 +852,20 @@ function checkThePicture(matrix, squareButtons) {
     clearInterval(timerId);
     const stopwatch = document.querySelector(".play-area__time__stopwatch");
     createModalWindow(stopwatch.textContent);
+
+    let wins = JSON.parse(localStorage.getItem("lastWins")) || [];
+
+    wins.push({
+      timeWin: stopwatch.textContent,
+      templateWin: infoTemplate,
+      levelWin: infoLevel,
+    });
+
+    if (wins.length > 5) {
+      wins = wins.slice(wins.length - 5);
+    }
+
+    localStorage.setItem("lastWins", JSON.stringify(wins));
   }
 }
 
@@ -737,8 +923,14 @@ function getHintForRow(row) {
   return hint;
 }
 
-function handleSquareClick(event, infoMatrix, squareButtons) {
-  checkThePicture(infoMatrix, squareButtons);
+function handleSquareClick(
+  event,
+  infoMatrix,
+  squareButtons,
+  infoTemplate,
+  infoLevel,
+) {
+  checkThePicture(infoMatrix, squareButtons, infoTemplate, infoLevel);
 
   const square = event.currentTarget;
 
@@ -752,7 +944,7 @@ function handleSquareClick(event, infoMatrix, squareButtons) {
     square.classList.add("dark");
   }
 
-  checkThePicture(infoMatrix, squareButtons);
+  checkThePicture(infoMatrix, squareButtons, infoTemplate, infoLevel);
 }
 
 function handleContextMenu(event, square) {
@@ -770,7 +962,12 @@ function handleContextMenu(event, square) {
 }
 
 function startTime() {
-  let count = 0;
+  const stopwatch = document.querySelector(".play-area__time__stopwatch");
+  const timeArray = stopwatch.textContent.split(":");
+  let count =
+    parseInt(timeArray[0], 10) * 3600 +
+    parseInt(timeArray[1], 10) * 60 +
+    parseInt(timeArray[2], 10);
   timerId = setInterval(() => {
     count++;
 
@@ -780,13 +977,63 @@ function startTime() {
 
     const formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}`;
 
-    const stopwatch = document.querySelector(".play-area__time__stopwatch");
     stopwatch.textContent = formattedTime;
   }, 1000);
 }
 
 function padZero(num) {
   return num < 10 ? `0${num}` : num;
+}
+
+function saveCurrentGame(infoTemplate) {
+  const squareButtons = document.querySelectorAll(
+    ".play-area__box__field__square",
+  );
+
+  const newSquareButtons = Array.from(squareButtons).map((button) => {
+    if (button.classList.contains("dark")) {
+      return 1;
+    } else if (button.textContent === "X") {
+      return 2;
+    } else {
+      return 0;
+    }
+  });
+  const newSquareButtonsAsNumbers = newSquareButtons.map(Number);
+  const time = document.querySelector(
+    ".play-area__time__stopwatch",
+  ).textContent;
+  localStorage.setItem("infoTemplate", infoTemplate);
+  localStorage.setItem("saveField", JSON.stringify(newSquareButtonsAsNumbers));
+  localStorage.setItem("time", time);
+
+  createWindowGameSaved();
+  const windowToRemove = document.querySelector(
+    ".saved-modal-window-container",
+  );
+  setTimeout(() => {
+    if (windowToRemove) {
+      windowToRemove.parentNode.removeChild(windowToRemove);
+    }
+  }, 700);
+}
+
+function createPlayerRow(playerNumber, playerObj) {
+  const playerData = [
+    playerNumber.toString(),
+    playerObj["timeWin"],
+    playerObj["templateWin"],
+    playerObj["levelWin"],
+  ];
+
+  const playerElements = document.createElement("tr");
+  playerData.forEach((elem) => {
+    const playerElem = document.createElement("td");
+    playerElem.textContent = elem;
+    playerElements.appendChild(playerElem);
+  });
+
+  return playerElements;
 }
 
 // implementation
