@@ -2,6 +2,7 @@ import info from "./info.json" assert { type: "json" };
 let timerId;
 let isTimerStarted = false;
 let soundFlag = true;
+let lightTheme = true;
 
 // Audio
 
@@ -74,7 +75,7 @@ function createHeader() {
 
   const themeButton = document.createElement("button");
   themeButton.className = "top-dashboard__navigation__theme__button";
-  themeButton.textContent = "light";
+  themeButton.textContent = "light ☀️";
 
   const themeWord = document.createElement("p");
   themeWord.className = "top-dashboard__navigation__theme__word";
@@ -112,6 +113,43 @@ function createHeader() {
       stopAllSounds(allSounds);
     }
     soundFlag = !soundFlag;
+  });
+
+  const theme = document.querySelector(
+    ".top-dashboard__navigation__theme__button",
+  );
+
+  const lightStyleHref = "style-light.css";
+  const darkStyleHref = "style-dark.css";
+  const style = document.getElementById("style");
+
+  theme.addEventListener("click", () => {
+    soundFlag && playSound(audioInterface);
+    if (lightTheme) {
+      style.href = darkStyleHref;
+
+      const createdThemeButton = document.querySelector(
+        ".top-dashboard__navigation__theme__button",
+      );
+      createdThemeButton.textContent = "dark 🌙";
+
+      const mainImage = document.getElementById("Totoro");
+      mainImage.src = "./assets/kaonashi.png";
+
+      lightTheme = false;
+    } else {
+      style.href = lightStyleHref;
+
+      const createdThemeButton = document.querySelector(
+        ".top-dashboard__navigation__theme__button",
+      );
+      createdThemeButton.textContent = "light ☀️";
+
+      const mainImage = document.getElementById("Totoro");
+      mainImage.src = "./assets/totoro.png";
+
+      lightTheme = true;
+    }
   });
 }
 
@@ -248,6 +286,7 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
   playAreaImage.className = "play-area__image";
   playAreaImage.src = "./assets/totoro.png";
   playAreaImage.alt = "Totoro";
+  playAreaImage.id = "Totoro";
 
   main.appendChild(leftArea);
   main.appendChild(playAreaBox);
@@ -280,6 +319,8 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
   document.body.appendChild(main);
   document.body.appendChild(footer);
 
+  checkTheme();
+
   // Styles
   if (infoNumber === 225) {
     const squares = document.querySelectorAll(".play-area__box__field__square");
@@ -293,8 +334,14 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
     playAreaBox.style.marginTop = "15px";
 
     const vHints = document.querySelectorAll(".play-area__box__hint__numberV");
-    vHints[4].style.borderRight = "4px solid #800000";
-    vHints[9].style.borderRight = "4px solid #800000";
+    if (!lightTheme) {
+      vHints[4].style.borderRight = "4px solid darkgray";
+      vHints[9].style.borderRight = "4px solid darkgray";
+    } else {
+      vHints[4].style.borderRight = "4px solid #800000";
+      vHints[9].style.borderRight = "4px solid #800000";
+    }
+
     vHints.forEach((hint) => {
       hint.style.width = "21px";
       hint.style.height = "auto";
@@ -321,7 +368,11 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
     });
 
     const vHints = document.querySelectorAll(".play-area__box__hint__numberV");
-    vHints[4].style.borderRight = "5px solid #800000";
+    if (!lightTheme) {
+      vHints[4].style.borderRight = "5px solid darkgray";
+    } else {
+      vHints[4].style.borderRight = "5px solid #800000";
+    }
     vHints.forEach((hint) => {
       hint.style.width = "33px";
       hint.style.height = "auto";
@@ -345,6 +396,11 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
     squares.forEach((square) => {
       square.style.fontSize = "50px";
     });
+  }
+
+  if (!lightTheme) {
+    const mainImage = document.getElementById("Totoro");
+    mainImage.src = "./assets/kaonashi.png";
   }
 
   // Event Listeners
@@ -507,6 +563,7 @@ function createMenuWindow() {
   menuImage.classList.add("menu__image");
   menuImage.src = "./assets/totoro.png";
   menuImage.alt = "Totoro";
+  menuImage.id = "Totoro";
 
   main.appendChild(menuNav);
   main.appendChild(menuImage);
@@ -541,6 +598,13 @@ function createMenuWindow() {
   footer.appendChild(linkedin);
 
   document.body.appendChild(footer);
+
+  if (!lightTheme) {
+    const mainImage = document.getElementById("Totoro");
+    mainImage.src = "./assets/kaonashi.png";
+  }
+
+  checkTheme();
 
   // Event Listeners
 
@@ -674,6 +738,7 @@ function createMenuNewGameWindow() {
   img.classList.add("menu__image");
   img.src = "./assets/totoro.png";
   img.alt = "Totoro";
+  img.id = "Totoro";
   main.appendChild(img);
 
   const footer = document.createElement("footer");
@@ -708,6 +773,13 @@ function createMenuNewGameWindow() {
     document.body.innerHTML = "";
     createMenuWindow();
   });
+
+  if (!lightTheme) {
+    const mainImage = document.getElementById("Totoro");
+    mainImage.src = "./assets/kaonashi.png";
+  }
+
+  checkTheme();
 
   // Event listeners
 
@@ -832,6 +904,14 @@ function createModalWindow(time) {
       }
     });
   });
+
+  if (!lightTheme) {
+    const img = document.querySelector(".modal-window__image");
+    img.src = "./assets/happy-kaonashi.png";
+  } else {
+    const img = document.querySelector(".modal-window__image");
+    img.src = "./assets/happy-totoro.png";
+  }
 }
 
 function createWindowGameSaved() {
@@ -873,6 +953,7 @@ function createScoreTable(arr) {
   menuImage.classList.add("menu__image"); // class for the purpose of uniform css styles
   menuImage.src = "./assets/totoro.png";
   menuImage.alt = "Totoro";
+  menuImage.id = "Totoro";
 
   const scoreTable = document.createElement("table");
   scoreTable.classList.add("score-table");
@@ -930,6 +1011,15 @@ function createScoreTable(arr) {
   footer.appendChild(backButton);
 
   document.body.appendChild(footer);
+
+  if (!lightTheme) {
+    const mainImage = document.getElementById("Totoro");
+    mainImage.src = "./assets/kaonashi.png";
+  }
+
+  checkTheme();
+
+  // Event Listeners
 
   const back = document.querySelector(".bottom-dashboard-menu__button");
 
@@ -1214,6 +1304,20 @@ function playBackgroundAudio() {
     },
     { once: true },
   );
+}
+
+function checkTheme() {
+  if (lightTheme) {
+    const createdThemeButton = document.querySelector(
+      ".top-dashboard__navigation__theme__button",
+    );
+    createdThemeButton.textContent = "light ☀️";
+  } else {
+    const createdThemeButton = document.querySelector(
+      ".top-dashboard__navigation__theme__button",
+    );
+    createdThemeButton.textContent = "dark 🌙";
+  }
 }
 
 // implementation
