@@ -1,8 +1,42 @@
 import info from "./info.json" assert { type: "json" };
 let timerId;
 let isTimerStarted = false;
+let soundFlag = true;
+
+// Audio
+
+const audio = new Audio("./sounds/nonograms-music.mp3");
+audio.loop = true;
+
+const audioButton = new Audio("./sounds/button.mp3");
+const audioButtonX = new Audio("./sounds/button-x.mp3");
+const audioGameWin = new Audio("./sounds/game-win.mp3");
+const audioInterface = new Audio("./sounds/interface.mp3");
+const allSounds = [
+  audio,
+  audioButton,
+  audioButtonX,
+  audioGameWin,
+  audioInterface,
+];
+
+const soundButton = () => {
+  soundFlag && playSound(audioButton);
+};
+const soundButtonX = () => {
+  soundFlag && playSound(audioButtonX);
+};
 
 // main functions
+
+function stopAllSounds(allSounds) {
+  allSounds.forEach((sound) => {
+    sound.pause();
+    if (sound !== audio) {
+      sound.currentTime = 0;
+    }
+  });
+}
 
 function createHeader() {
   const header = document.createElement("header");
@@ -55,6 +89,30 @@ function createHeader() {
 
   header.appendChild(nav);
   document.body.appendChild(header);
+
+  const soundButtonImg = document.querySelector(
+    ".top-dashboard__navigation__sound__button__image",
+  );
+
+  if (soundFlag === false) {
+    soundButtonImg.src = "./assets/sound-icon-inactive.png";
+  } else {
+    soundButtonImg.src = "./assets/sound-icon.png";
+  }
+
+  const sound = document.querySelector(
+    ".top-dashboard__navigation__sound__button",
+  );
+  sound.addEventListener("click", () => {
+    if (soundFlag === false) {
+      soundButtonImg.src = "./assets/sound-icon.png";
+      playBackgroundAudio();
+    } else {
+      soundButtonImg.src = "./assets/sound-icon-inactive.png";
+      stopAllSounds(allSounds);
+    }
+    soundFlag = !soundFlag;
+  });
 }
 
 function createGameWindow(matrix, saveMatrix, saveTime) {
@@ -295,6 +353,7 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
   );
 
   menuButton.addEventListener("click", () => {
+    soundFlag && playSound(audioInterface);
     clearInterval(timerId);
     document.body.innerHTML = "";
     createMenuWindow();
@@ -326,9 +385,11 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
 
   squareButtons.forEach((square) => {
     square.addEventListener("click", clickHandler);
+    square.addEventListener("click", soundButton);
     square.addEventListener("contextmenu", (event) =>
       handleContextMenu(event, square),
     );
+    square.addEventListener("contextmenu", soundButtonX);
   });
 
   const boxField = document.querySelector(".play-area__box__field");
@@ -356,6 +417,7 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
   resetGameButton.addEventListener("click", () => {
     saveGameButton.classList.remove("non-working");
     saveGameButton.addEventListener("click", saveCurrentGameFunction);
+    soundFlag && playSound(audioInterface);
 
     clearInterval(timerId);
 
@@ -366,6 +428,7 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
 
     squareButtons.forEach((square) => {
       square.addEventListener("click", clickHandler);
+      square.addEventListener("click", soundButton);
       if (square.classList.contains("dark")) {
         square.classList.remove("dark");
       } else if (square.textContent === "X") {
@@ -379,6 +442,7 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
   );
 
   solutionButton.addEventListener("click", () => {
+    soundFlag && playSound(audioInterface);
     clearInterval(timerId);
 
     const stopwatch = document.querySelector(".play-area__time__stopwatch");
@@ -404,10 +468,14 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
 
     squareButtons.forEach((square) => {
       square.removeEventListener("click", clickHandler);
+      square.removeEventListener("click", soundButton);
     });
   });
 
   saveGameButton.addEventListener("click", saveCurrentGameFunction);
+  saveGameButton.addEventListener("click", () => {
+    soundFlag && playSound(audioInterface);
+  });
 }
 
 function createMenuWindow() {
@@ -446,7 +514,32 @@ function createMenuWindow() {
   document.body.appendChild(main);
 
   const footer = document.createElement("footer");
-  footer.classList.add("bottom-dashboard");
+  footer.classList.add("bottom-dashboard-start");
+
+  const textAboutCreator = document.createElement("p");
+  textAboutCreator.classList.add("bottom-dashboard__text-creator");
+  textAboutCreator.textContent =
+    "Game and music created by Anastasiia Kabanova (Anastasiia Ramona), 2024";
+
+  const linkedin = document.createElement("div");
+  linkedin.classList.add("bottom-dashboard__linkedin");
+
+  const img = document.createElement("img");
+  img.classList.add("bottom-dashboard__linkedin__icon");
+  img.src = "./assets/linkedin-icon.png";
+  img.alt = "linkedin icon";
+
+  const link = document.createElement("a");
+  link.classList.add("bottom-dashboard__linkedin__link");
+  link.href = "https://www.linkedin.com/in/anastasiiarchm/";
+  link.textContent = "LinkedIn";
+
+  linkedin.appendChild(img);
+  linkedin.appendChild(link);
+
+  footer.appendChild(textAboutCreator);
+  footer.appendChild(linkedin);
+
   document.body.appendChild(footer);
 
   // Event Listeners
@@ -455,22 +548,50 @@ function createMenuWindow() {
   newGameButton.addEventListener("click", () => {
     document.body.innerHTML = "";
     createMenuNewGameWindow();
+    soundFlag && playSound(audioInterface);
   });
 
   const resumeGameButton = document.querySelector(
     ".menu__navigation__resume-game",
   );
   resumeGameButton.addEventListener("click", () => {
+    soundFlag && playSound(audioInterface);
     const saveField = localStorage.getItem("saveField");
     const saveMatrix = JSON.parse(saveField);
     const saveTemplate = localStorage.getItem("infoTemplate");
     const saveTime = localStorage.getItem("time");
-    const infoObject = info.find(
-      (object) => object["template"] === saveTemplate,
-    );
-    const infoMatrix = infoObject["matrix"];
-    document.body.innerHTML = "";
-    createGameWindow(infoMatrix, saveMatrix, saveTime);
+
+    if (saveField && saveTemplate && saveTime) {
+      const infoObject = info.find(
+        (object) => object["template"] === saveTemplate,
+      );
+
+      if (infoObject) {
+        const infoMatrix = infoObject["matrix"];
+        document.body.innerHTML = "";
+        createGameWindow(infoMatrix, saveMatrix, saveTime);
+      } else {
+        createWindowNoGameSaved();
+        const windowToRemove = document.querySelector(
+          ".no-saved-modal-window-container",
+        );
+        setTimeout(() => {
+          if (windowToRemove) {
+            windowToRemove.parentNode.removeChild(windowToRemove);
+          }
+        }, 700);
+      }
+    } else {
+      createWindowNoGameSaved();
+      const windowToRemove = document.querySelector(
+        ".no-saved-modal-window-container",
+      );
+      setTimeout(() => {
+        if (windowToRemove) {
+          windowToRemove.parentNode.removeChild(windowToRemove);
+        }
+      }, 700);
+    }
   });
 
   const scoreTableButton = document.querySelector(
@@ -478,10 +599,10 @@ function createMenuWindow() {
   );
   scoreTableButton.addEventListener("click", () => {
     document.body.innerHTML = "";
+    soundFlag && playSound(audioInterface);
 
     let winsString = localStorage.getItem("lastWins");
     let wins = JSON.parse(winsString) || [];
-    console.log(wins);
     createScoreTable(wins);
   });
 }
@@ -575,6 +696,7 @@ function createMenuNewGameWindow() {
   const back = document.querySelector(".bottom-dashboard-menu__button");
 
   back.addEventListener("click", () => {
+    soundFlag && playSound(audioInterface);
     document.body.innerHTML = "";
     createMenuWindow();
   });
@@ -582,6 +704,7 @@ function createMenuNewGameWindow() {
   const arrowButton = document.querySelector(".bottom-dashboard__image");
 
   arrowButton.addEventListener("click", () => {
+    soundFlag && playSound(audioInterface);
     document.body.innerHTML = "";
     createMenuWindow();
   });
@@ -604,6 +727,7 @@ function createMenuNewGameWindow() {
   const select2 = document.getElementById("select-level");
 
   startGame.addEventListener("click", () => {
+    soundFlag && playSound(audioInterface);
     const selectedOption1 = select1.options[select1.selectedIndex].textContent;
     const selectedOption2 = select2.options[select2.selectedIndex].textContent;
     const selectedObject = info.find(
@@ -618,6 +742,7 @@ function createMenuNewGameWindow() {
   const randomGame = document.querySelector(".menu__navigation__random-game");
 
   randomGame.addEventListener("click", () => {
+    soundFlag && playSound(audioInterface);
     const selectedObject = info[Math.floor(Math.random() * info.length)];
     const selectedMatrix = selectedObject.matrix;
     document.body.innerHTML = "";
@@ -676,6 +801,7 @@ function createModalWindow(time) {
 
   const buttonMenuBack = document.querySelector(".modal-window__menu-button");
   buttonMenuBack.addEventListener("click", () => {
+    soundFlag && playSound(audioInterface);
     document.body.innerHTML = "";
     createMenuWindow();
   });
@@ -684,6 +810,7 @@ function createModalWindow(time) {
     ".modal-window__start-again-button",
   );
   buttonStart.addEventListener("click", () => {
+    soundFlag && playSound(audioInterface);
     const modalWindow = document.querySelector(".modal-window-container");
     modalWindow.remove();
 
@@ -807,6 +934,7 @@ function createScoreTable(arr) {
   const back = document.querySelector(".bottom-dashboard-menu__button");
 
   back.addEventListener("click", () => {
+    soundFlag && playSound(audioInterface);
     document.body.innerHTML = "";
     createMenuWindow();
   });
@@ -814,9 +942,33 @@ function createScoreTable(arr) {
   const arrowButton = document.querySelector(".bottom-dashboard__image");
 
   arrowButton.addEventListener("click", () => {
+    soundFlag && playSound(audioInterface);
     document.body.innerHTML = "";
     createMenuWindow();
   });
+}
+
+function createWindowNoGameSaved() {
+  const previousModal = document.querySelector(".saved-modal-window-container");
+  if (previousModal) {
+    previousModal.remove();
+  }
+
+  const body = document.body;
+
+  const modalWindowContainer = document.createElement("section");
+  modalWindowContainer.classList.add("no-saved-modal-window-container");
+
+  const modalWindow = document.createElement("div");
+  modalWindow.classList.add("no-saved-modal-window");
+
+  const noGameSaved = document.createElement("p");
+  noGameSaved.classList.add("no-saved-modal-window__game-saved");
+  noGameSaved.textContent = "No game save exist";
+
+  modalWindow.appendChild(noGameSaved);
+  modalWindowContainer.appendChild(modalWindow);
+  body.appendChild(modalWindowContainer);
 }
 
 // secondary functions
@@ -852,6 +1004,7 @@ function checkThePicture(matrix, squareButtons, infoTemplate, infoLevel) {
     clearInterval(timerId);
     const stopwatch = document.querySelector(".play-area__time__stopwatch");
     createModalWindow(stopwatch.textContent);
+    soundFlag && playSound(audioGameWin);
 
     let wins = JSON.parse(localStorage.getItem("lastWins")) || [];
 
@@ -935,7 +1088,10 @@ function handleSquareClick(
   const square = event.currentTarget;
 
   if (square.textContent === "X") {
+    square.removeEventListener("click", soundButton);
     return;
+  } else {
+    square.addEventListener("click", soundButton);
   }
 
   if (square.classList.contains("dark")) {
@@ -951,6 +1107,7 @@ function handleContextMenu(event, square) {
   event.preventDefault();
 
   if (square.classList.contains("dark")) {
+    square.removeEventListener("click", soundButtonX);
     return;
   }
 
@@ -1036,6 +1193,30 @@ function createPlayerRow(playerNumber, playerObj) {
   return playerElements;
 }
 
+function playSound(sound) {
+  sound.currentTime = 0;
+  sound.play();
+}
+
+function playBackgroundAudio() {
+  document.addEventListener(
+    "click",
+    () => {
+      soundFlag && audio.play();
+    },
+    { once: true },
+  );
+
+  document.addEventListener(
+    "contextmenu",
+    () => {
+      soundFlag && audio.play();
+    },
+    { once: true },
+  );
+}
+
 // implementation
 
 createGameWindow();
+playBackgroundAudio();
