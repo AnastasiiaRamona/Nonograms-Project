@@ -248,7 +248,7 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
     const hintNumber = document.createElement("div");
     hintNumber.className = "play-area__box__hint__numberH";
     const gameObject = createHints(infoMatrix);
-    hintNumber.textContent = gameObject.rowHints[i].join(" ");
+    hintNumber.textContent = gameObject.rowHints[i].join("  ");
     hintHorizontal1.appendChild(hintNumber);
   }
 
@@ -321,6 +321,10 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
 
   checkTheme();
 
+  const theme = document.querySelector(
+    ".top-dashboard__navigation__theme__button",
+  );
+
   // Styles
   if (infoNumber === 225) {
     const squares = document.querySelectorAll(".play-area__box__field__square");
@@ -328,6 +332,10 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
       square.style.width = "21px";
       square.style.height = "21px";
       square.style.fontSize = "18px";
+      // if (window.matchMedia("(max-width: 1325px)").matches) {
+      //   square.style.width = "15px";
+      //   square.style.height = "15px";
+      // }
     });
 
     const playAreaBox = document.querySelector(".play-area__box");
@@ -342,10 +350,23 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
       vHints[9].style.borderRight = "4px solid #800000";
     }
 
+    theme.addEventListener("click", () => {
+      if (!lightTheme) {
+        vHints[4].style.borderRight = "4px solid darkgray";
+        vHints[9].style.borderRight = "4px solid darkgray";
+      } else {
+        vHints[4].style.borderRight = "4px solid #800000";
+        vHints[9].style.borderRight = "4px solid #800000";
+      }
+    });
+
     vHints.forEach((hint) => {
       hint.style.width = "21px";
-      hint.style.height = "auto";
+      hint.style.height = "120px";
       hint.style.fontSize = "medium";
+      // if (window.matchMedia("(max-width: 1325px)").matches) {
+      //   hint.style.width = "15px";
+      // }
     });
 
     const hHints = document.querySelectorAll(".play-area__box__hint__numberH");
@@ -353,10 +374,13 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
       hint.style.width = "70px";
       hint.style.height = "21px";
       hint.style.fontSize = "medium";
+      // if (window.matchMedia("(max-width: 1325px)").matches) {
+      //   hint.style.height = "15px";
+      // }
     });
 
     const line = document.querySelector(".play-area__box__hint-vertical");
-    line.style.marginLeft = "84.3px";
+    line.style.marginLeft = "91px";
 
     const grid = document.querySelector(".play-area__box__field");
     grid.style.gridTemplateColumns = "repeat(15, 1fr)";
@@ -373,9 +397,17 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
     } else {
       vHints[4].style.borderRight = "5px solid #800000";
     }
+    theme.addEventListener("click", () => {
+      if (!lightTheme) {
+        vHints[4].style.borderRight = "5px solid darkgray";
+      } else {
+        vHints[4].style.borderRight = "5px solid #800000";
+      }
+    });
+
     vHints.forEach((hint) => {
       hint.style.width = "33px";
-      hint.style.height = "auto";
+      hint.style.height = "100px";
       hint.style.fontSize = "large";
     });
 
@@ -387,7 +419,7 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
     });
 
     const line = document.querySelector(".play-area__box__hint-vertical");
-    line.style.marginLeft = "60px";
+    line.style.marginLeft = "66.5px";
 
     const grid = document.querySelector(".play-area__box__field");
     grid.style.gridTemplateColumns = "repeat(10, 1fr)";
@@ -549,7 +581,7 @@ function createMenuWindow() {
 
   const continueGameUl = document.createElement("ul");
   continueGameUl.classList.add("menu__navigation__resume-game");
-  continueGameUl.textContent = "Resume Game";
+  continueGameUl.textContent = "Continue last Game";
 
   const scoreTableUl = document.createElement("ul");
   scoreTableUl.classList.add("menu__navigation__score-table");
@@ -576,7 +608,7 @@ function createMenuWindow() {
   const textAboutCreator = document.createElement("p");
   textAboutCreator.classList.add("bottom-dashboard__text-creator");
   textAboutCreator.textContent =
-    "Game and music created by Anastasiia Kabanova (Anastasiia Ramona), 2024";
+    "Game and music created by Anastasiia Ramona, 2024";
 
   const linkedin = document.createElement("div");
   linkedin.classList.add("bottom-dashboard__linkedin");
@@ -589,7 +621,8 @@ function createMenuWindow() {
   const link = document.createElement("a");
   link.classList.add("bottom-dashboard__linkedin__link");
   link.href = "https://www.linkedin.com/in/anastasiiarchm/";
-  link.textContent = "LinkedIn";
+  link.textContent = "Anastasiia Kabanova";
+  link.target = "_blank";
 
   linkedin.appendChild(img);
   linkedin.appendChild(link);
@@ -1159,8 +1192,6 @@ function getHintForRow(row) {
 
   if (count > 0) {
     hint.push(count);
-  } else if (row.every((cell) => cell === 0)) {
-    hint.push(0);
   }
 
   return hint;
