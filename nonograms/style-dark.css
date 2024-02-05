@@ -889,7 +889,7 @@ a:hover {
 
 /* HEIGHT */
 
-@media screen and (min-height: 972px) {
+@media screen and (min-height: 1239px) {
   .play-area {
     align-items: flex-end;
   }
@@ -902,6 +902,22 @@ a:hover {
   .play-area__section {
     margin-bottom: 100px;
   }
+
+  .menu {
+    align-items: flex-end;
+  }
+
+  .menu__navigation {
+    margin-bottom: 200px;
+  }
+
+  .main-score-table {
+    align-items: flex-end;
+  }
+
+  .score-table {
+    margin-bottom: 200px;
+  }
 }
 
 @media screen and (min-height: 972px) and (max-width: 850px) {
@@ -909,6 +925,12 @@ a:hover {
     flex-direction: column;
     display: flex;
     align-items: center;
+  }
+}
+
+@media screen and (max-height: 850px) {
+  .top-dashboard__navigation__sound__button {
+    height: 90px;
   }
 }
 
