@@ -878,7 +878,7 @@ a:hover {
 
 /* HEIGHT */
 
-@media screen and (min-height: 1239px) {
+@media screen and (min-height: 1020px) {
   .play-area {
     align-items: flex-end;
   }
