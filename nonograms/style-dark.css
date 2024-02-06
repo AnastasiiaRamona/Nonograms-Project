@@ -920,6 +920,12 @@ a:hover {
   }
 }
 
+@media screen and (min-height: 1020px) and (max-width: 800px) {
+  .play-area__section {
+    margin-bottom: 0;
+  }
+}
+
 @media screen and (min-height: 972px) and (max-width: 850px) {
   .play-area {
     flex-direction: column;
