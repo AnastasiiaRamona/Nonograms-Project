@@ -924,6 +924,10 @@ a:hover {
   .play-area__section {
     margin-bottom: 0;
   }
+
+  .play-area__box {
+    margin-bottom: 0;
+  }
 }
 
 @media screen and (min-height: 972px) and (max-width: 850px) {
