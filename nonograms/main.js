@@ -3,6 +3,11 @@ let timerId;
 let isTimerStarted = false;
 let soundFlag = true;
 let lightTheme = true;
+let contextMenuHandler = (event) => handleContextMenu(event, square);
+let contextMenuEnabled = true;
+let soundButtonFlag = true;
+let soundButtonXFlag = true;
+let clickHandlerFlag = true;
 
 // Audio
 
@@ -13,12 +18,14 @@ const audioButton = new Audio("./sounds/button.mp3");
 const audioButtonX = new Audio("./sounds/button-x.mp3");
 const audioGameWin = new Audio("./sounds/game-win.mp3");
 const audioInterface = new Audio("./sounds/interface.mp3");
+const audioButtonBack = new Audio("./sounds/button-back.mp3");
 const allSounds = [
   audio,
   audioButton,
   audioButtonX,
   audioGameWin,
   audioInterface,
+  audioButtonBack
 ];
 
 const soundButton = () => {
@@ -27,6 +34,9 @@ const soundButton = () => {
 const soundButtonX = () => {
   soundFlag && playSound(audioButtonX);
 };
+const soundButtonBack = () => {
+  soundFlag && playSound(audioButtonBack);
+}
 
 // main functions
 
@@ -155,6 +165,10 @@ function createHeader() {
 
 function createGameWindow(matrix, saveMatrix, saveTime) {
   isTimerStarted = false;
+  soundButtonFlag = true;
+  soundButtonXFlag = true;
+  contextMenuEnabled = true;
+  clickHandlerFlag = true;
 
   let infoObject = info[Math.floor(Math.random() * 5)];
   let infoTemplate = infoObject["template"];
@@ -332,10 +346,6 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
       square.style.width = "21px";
       square.style.height = "21px";
       square.style.fontSize = "18px";
-      // if (window.matchMedia("(max-width: 1325px)").matches) {
-      //   square.style.width = "15px";
-      //   square.style.height = "15px";
-      // }
     });
 
     const playAreaBox = document.querySelector(".play-area__box");
@@ -364,9 +374,6 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
       hint.style.width = "21px";
       hint.style.height = "120px";
       hint.style.fontSize = "medium";
-      // if (window.matchMedia("(max-width: 1325px)").matches) {
-      //   hint.style.width = "15px";
-      // }
     });
 
     const hHints = document.querySelectorAll(".play-area__box__hint__numberH");
@@ -374,9 +381,6 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
       hint.style.width = "70px";
       hint.style.height = "21px";
       hint.style.fontSize = "medium";
-      // if (window.matchMedia("(max-width: 1325px)").matches) {
-      //   hint.style.height = "15px";
-      // }
     });
 
     const line = document.querySelector(".play-area__box__hint-vertical");
@@ -471,13 +475,42 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
       infoLevel,
     );
 
-  squareButtons.forEach((square) => {
+  let addToggleSound;
+  function addEventListenerWrapper(square) {
+    addToggleSound = function toggleSound(event) {
+      if (soundButtonFlag === false) {
+        return;
+      }
+      if (square.classList.contains("dark")) {
+        soundButton(event);
+      } else {
+        soundButtonBack(event);
+      }
+    }
+
+    function toggleSoundX(event) {
+      if (soundButtonXFlag === false) {
+        return;
+      }
+      if (square.textContent === "X") {
+        soundButtonX(event);
+      } else {
+        soundButtonBack(event);
+      }
+    }
+
     square.addEventListener("click", clickHandler);
-    square.addEventListener("click", soundButton);
-    square.addEventListener("contextmenu", (event) =>
-      handleContextMenu(event, square),
-    );
-    square.addEventListener("contextmenu", soundButtonX);
+    square.addEventListener("click", addToggleSound);
+
+    contextMenuHandler = function (event) {
+      handleContextMenu(event, square);
+    };
+    square.addEventListener("contextmenu", contextMenuHandler);
+    square.addEventListener("contextmenu", toggleSoundX);
+  }
+
+  squareButtons.forEach((square) => {
+    addEventListenerWrapper(square);
   });
 
   const boxField = document.querySelector(".play-area__box__field");
@@ -501,29 +534,6 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
   );
 
   const saveCurrentGameFunction = () => saveCurrentGame(infoTemplate);
-
-  resetGameButton.addEventListener("click", () => {
-    saveGameButton.classList.remove("non-working");
-    saveGameButton.addEventListener("click", saveCurrentGameFunction);
-    soundFlag && playSound(audioInterface);
-
-    clearInterval(timerId);
-
-    const stopwatch = document.querySelector(".play-area__time__stopwatch");
-    stopwatch.textContent = "00:00:00";
-
-    isTimerStarted = false;
-
-    squareButtons.forEach((square) => {
-      square.addEventListener("click", clickHandler);
-      square.addEventListener("click", soundButton);
-      if (square.classList.contains("dark")) {
-        square.classList.remove("dark");
-      } else if (square.textContent === "X") {
-        square.textContent = "";
-      }
-    });
-  });
 
   const solutionButton = document.querySelector(
     ".bottom-dashboard__navigation__solution",
@@ -555,9 +565,38 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
     });
 
     squareButtons.forEach((square) => {
-      square.removeEventListener("click", clickHandler);
-      square.removeEventListener("click", soundButton);
+      clickHandlerFlag = false;
+      soundButtonFlag = false;
+      soundButtonXFlag = false;
+      contextMenuEnabled = false;
     });
+  });
+
+  resetGameButton.addEventListener("click", () => {
+    saveGameButton.classList.remove("non-working");
+    saveGameButton.addEventListener("click", saveCurrentGameFunction);
+    soundFlag && playSound(audioInterface);
+
+    clearInterval(timerId);
+
+    const stopwatch = document.querySelector(".play-area__time__stopwatch");
+    stopwatch.textContent = "00:00:00";
+
+    isTimerStarted = false;
+
+    squareButtons.forEach((square) => {
+      if (square.classList.contains("dark")) {
+        square.classList.remove("dark");
+      } else if (square.textContent === "X") {
+        square.textContent = "";
+      }
+      clickHandlerFlag = true;
+      soundButtonFlag = true;
+      soundButtonXFlag = true;
+      contextMenuEnabled = true;
+    });
+
+
   });
 
   saveGameButton.addEventListener("click", saveCurrentGameFunction);
@@ -1204,15 +1243,15 @@ function handleSquareClick(
   infoTemplate,
   infoLevel,
 ) {
+  if (clickHandlerFlag === false) {
+    return;
+  }
   checkThePicture(infoMatrix, squareButtons, infoTemplate, infoLevel);
 
   const square = event.currentTarget;
 
   if (square.textContent === "X") {
-    square.removeEventListener("click", soundButton);
-    return;
-  } else {
-    square.addEventListener("click", soundButton);
+    square.textContent = "";
   }
 
   if (square.classList.contains("dark")) {
@@ -1225,14 +1264,14 @@ function handleSquareClick(
 }
 
 function handleContextMenu(event, square) {
+  if (!contextMenuEnabled) return;
   event.preventDefault();
 
   if (square.classList.contains("dark")) {
-    square.removeEventListener("click", soundButtonX);
-    return;
-  }
-
-  if (square.textContent === "X") {
+    square.classList.remove("dark");
+    square.textContent = "X";
+  } else if (square.textContent === "X") {
+    square.classList.remove("dark");
     square.textContent = "";
   } else {
     square.textContent = "X";
