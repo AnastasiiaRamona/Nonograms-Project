@@ -503,7 +503,13 @@ function createGameWindow(matrix, saveMatrix, saveTime) {
     square.addEventListener("click", addToggleSound);
 
     contextMenuHandler = function (event) {
-      handleContextMenu(event, square);
+      handleContextMenu(
+        event, 
+        square, 
+        infoMatrix,
+        squareButtons,
+        infoTemplate,
+        infoLevel);
     };
     square.addEventListener("contextmenu", contextMenuHandler);
     square.addEventListener("contextmenu", toggleSoundX);
@@ -1263,8 +1269,16 @@ function handleSquareClick(
   checkThePicture(infoMatrix, squareButtons, infoTemplate, infoLevel);
 }
 
-function handleContextMenu(event, square) {
+function handleContextMenu(
+  event, 
+  square, 
+  infoMatrix,
+  squareButtons,
+  infoTemplate,
+  infoLevel) {
   if (!contextMenuEnabled) return;
+
+  checkThePicture(infoMatrix, squareButtons, infoTemplate, infoLevel);
   event.preventDefault();
 
   if (square.classList.contains("dark")) {
@@ -1276,6 +1290,8 @@ function handleContextMenu(event, square) {
   } else {
     square.textContent = "X";
   }
+
+  checkThePicture(infoMatrix, squareButtons, infoTemplate, infoLevel);
 }
 
 function startTime() {
